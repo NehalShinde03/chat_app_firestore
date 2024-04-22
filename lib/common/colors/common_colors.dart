@@ -5,4 +5,6 @@ abstract class CommonColor{
   static const Color white = Colors.white;
   static const Color grey = Colors.grey;
   static const Color teal = Colors.teal;
+  static Color red = Colors.red;
+  static Color green = Colors.green;
 }

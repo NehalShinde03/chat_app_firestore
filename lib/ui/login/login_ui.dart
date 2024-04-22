@@ -5,13 +5,14 @@ import 'package:chat_app_firestore/common/widget/common_textfield.dart';
 import 'package:chat_app_firestore/services/firebase_service.dart';
 import 'package:chat_app_firestore/ui/login/login_cubit.dart';
 import 'package:chat_app_firestore/ui/login/login_state.dart';
+import 'package:chat_app_firestore/ui/registration/registration_ui.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 
-class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+class LoginUi extends StatefulWidget {
+  const LoginUi({super.key});
 
   static const String   routeName = '/login_view';
 
@@ -24,15 +25,15 @@ class LoginView extends StatefulWidget {
             formKey: GlobalKey<FormState>()
         ),
       ),
-      child: const LoginView(),
+      child: const LoginUi(),
     );
   }
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  State<LoginUi> createState() => _LoginUiState();
 }
 
-class _LoginViewState extends State<LoginView> {
+class _LoginUiState extends State<LoginUi> {
 
   LoginCubit get loginCubit => context.read<LoginCubit>();
 
@@ -110,7 +111,8 @@ class _LoginViewState extends State<LoginView> {
                                         context: context
                                     );
                                   }
-                                }),
+                                },
+                            ),
                           ),
 
                           /// for new account
@@ -126,7 +128,7 @@ class _LoginViewState extends State<LoginView> {
                                     ),
                                     children: [
                                       TextSpan(
-                                          recognizer: TapGestureRecognizer()..onTap=() => (),
+                                          recognizer: TapGestureRecognizer()..onTap=() => Navigator.pushNamed(context, RegistrationUi.routeName),
                                           text: "\tCreate Account",
                                           style: const TextStyle(
                                               fontWeight: TextWeight.medium,
@@ -138,8 +140,6 @@ class _LoginViewState extends State<LoginView> {
                                 )
                             ),
                           ),
-
-
                         ],
                       ),
                     ),

@@ -6,6 +6,7 @@ import 'package:chat_app_firestore/ui/bottom_nav_bar/bottom_nav_bar_view.dart';
 import 'package:chat_app_firestore/ui/login/login_ui.dart';
 import 'package:chat_app_firestore/ui/message/message_ui.dart';
 import 'package:chat_app_firestore/ui/profle/profile_ui.dart';
+import 'package:chat_app_firestore/ui/registration/registration_ui.dart';
 import 'package:chat_app_firestore/ui/search_user_profile/search_user_profile_ui.dart';
 import 'package:chat_app_firestore/ui/splash/splash_ui.dart';
 import 'package:chat_app_firestore/ui/upload_post/upload_post_ui.dart';
@@ -42,7 +43,8 @@ class MyApp extends StatelessWidget {
     // BottomNavigationBarUi.routeName:BottomNavigationBarUi.builder,
     BottomNavBarView.routeName:BottomNavBarView.builder,
     SplashUi.routeName:SplashUi.builder,
-    LoginView.routeName:LoginView.builder,
+    LoginUi.routeName:LoginUi.builder,
+    RegistrationUi.routeName:RegistrationUi.builder,
     AllPostUi.routeName:AllPostUi.builder,
     SearchUserProfileUi.routeName:SearchUserProfileUi.builder,
     UploadPostUi.routeName:UploadPostUi.builder,

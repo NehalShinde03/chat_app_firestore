@@ -1,14 +1,21 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:chat_app_firestore/common/spacing/common_spacing.dart';
 import 'package:chat_app_firestore/common/widget/common_text.dart';
+import 'package:chat_app_firestore/model/comment_model.dart';
 import 'package:chat_app_firestore/model/conversation_model.dart';
 import 'package:chat_app_firestore/model/message_conversationId_model.dart';
 import 'package:chat_app_firestore/model/message_model.dart';
+import 'package:chat_app_firestore/model/new_post_model.dart';
+import 'package:chat_app_firestore/model/registration_model.dart';
+import 'package:chat_app_firestore/model/show_comment_name_model.dart';
+import 'package:chat_app_firestore/ui/all_post/all_post_ui.dart';
 import 'package:chat_app_firestore/ui/bottom_nav_bar/bottom_nav_bar_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:motion_toast/motion_toast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -36,27 +43,21 @@ class FirebaseServices {
   final fireStoreMessageInstance =
   FirebaseFirestore.instance.collection("Message");
 
-  // List<String> messageList = [];
   String conversationId = "";
 
-
-  void compareSignInRecordWithAllUser({required String userEmail,
-    required String userPassword,
-    context,}) async {
-    fireStoreRegisterUserInstance
-        .where('userEmail', isEqualTo: userEmail)
-        .where('userPassword', isEqualTo: userPassword)
-        .snapshots()
-        .listen((snapshot) async {
-      if (snapshot.size > 0) {
-        SharedPreferences sharedPreferences = await SharedPreferences
-            .getInstance();
-        snapshot.docs.forEach((element) {
-          sharedPreferences.setString('userId', element.get('userId'));
-          Navigator.pushNamedAndRemoveUntil(
-              context, BottomNavBarView.routeName, (route) => false);
+  /// compare sign-in user record with fireStore all user data
+  void compareSignInRecordWithAllUser({ required String userEmail, required String userPassword, context,}) async {
+    fireStoreRegisterUserInstance.where(Filter.and(
+      Filter('userEmail', isEqualTo: userEmail),
+      Filter('userPassword', isEqualTo: userPassword),
+    )).get().then((value){
+      if(value.size > 0){
+        String userId = '';
+        value.docs.forEach((element) {
+          userId = element.get('userId');
         });
-      } else {
+        Navigator.pushNamed(context, AllPostUi.routeName, arguments: userId);
+      }else{
         MotionToast.error(
           toastDuration: const Duration(seconds: 3),
           title: const CommonText(
@@ -77,6 +78,146 @@ class FirebaseServices {
   }
 
 
+  ///insert new user record in fireStore (collection name = 'RegisterUser')
+  void insertNewUser({required RegistrationModel registrationModel}) async {
+    await fireStoreRegisterUserInstance
+        .add(registrationModel.toJson())
+        .then((value) {
+      value.set({'userId': value.id}, SetOptions(merge: true));
+    });
+  }
+
+
+  /// insert description, location on post
+  void insertNewPost({required NewPostModel newPostModel}) async {
+    await fireStoreNewPostInstance.add(newPostModel.toJson()).then((value) {
+      value.set({'postId': value.id}, SetOptions(merge: true));
+    });
+  }
+
+
+  /// update like on post
+  void updateLike({required String postId, required bool isLike}) async{
+    await fireStoreNewPostInstance.doc(postId).update({'isLike' : isLike});
+  }
+
+  /// picked image from gallery
+  Future<XFile?> imagePicker() async {
+    return await ImagePicker().pickImage(source: ImageSource.gallery);
+  }
+
+  /// upload image
+  Future<String> uploadImages({required XFile uploadImagePath, context}) async {
+    if (uploadImagePath.path.isNotEmpty) {
+      try {
+        Reference reference = FirebaseStorage.instance.ref().child('Images/').child(uploadImagePath.name);
+        var uploadImage = await reference.putFile(File(uploadImagePath.path));
+        String downloadImageUrl = await uploadImage.ref.getDownloadURL();
+        print('upload image type ===> ${uploadImage.runtimeType}');
+        return downloadImageUrl;
+      } catch (e) {
+        print('Exception ====> $e');
+      }
+    }
+    return "";
+  }
+
+  ///delete post
+  void deletePost({required String postId}) {
+    fireStoreNewPostInstance.doc(postId).delete();
+  }
+
+  /// get register user name
+  Future<String> registerUserName({required String userId}) async {
+    DocumentSnapshot<Map<String, dynamic>> userName = await fireStoreRegisterUserInstance.doc(userId).get();
+    return userName.get('userName');
+  }
+
+
+  ///insert Like in newPost Collection
+  Future<bool> insertLikes({required String postId, required String userId}) async{
+    bool userAlreadyLikeOnPost = false;
+    fireStoreNewPostInstance.doc().get();
+    await fireStoreNewPostInstance.where(Filter.and(
+      Filter('postId', isEqualTo: postId),
+      Filter('like', arrayContains: userId),
+    )).get().then((value){
+      if(value.size > 0){
+        fireStoreNewPostInstance.doc(postId).update({"like" : FieldValue.arrayRemove([userId])});
+        userAlreadyLikeOnPost = false;
+      }
+      else{
+        fireStoreNewPostInstance.doc(postId).update({"like" : FieldValue.arrayUnion([userId])});
+        userAlreadyLikeOnPost = true;
+      }
+    });
+    return userAlreadyLikeOnPost;
+  }
+
+  /// show users name to like a post
+  Future<List<String>> showUserNameToLikeAPost({required String postId}) async{
+    List<String> totalListList = [];
+    DocumentSnapshot<Map<String, dynamic>> getPostData = await fireStoreNewPostInstance.doc(postId).get();
+    List<String> getAllUserToBeLikeAPost  = List<String>.from(getPostData.get('like'));
+    for(int i=0; i<getAllUserToBeLikeAPost.length; i++){
+      DocumentSnapshot<Map<String, dynamic>> getUseData = await fireStoreRegisterUserInstance.doc(getAllUserToBeLikeAPost[i]).get();
+      totalListList.add(getUseData.get('userName'));
+    }
+    return totalListList;
+  }
+
+
+  /// insert comment data
+  Future<void> insertComment({required CommentModel commentModel}) async {
+    await fireStoreCommentInstance.add(commentModel.toJson())
+        .then((value) async {
+      value.set({'commentId': value.id}, SetOptions(merge: true));
+      await fireStoreNewPostInstance.doc(commentModel.postId).update({
+        'comment': FieldValue.arrayUnion([value.id])
+      });
+    });
+  }
+
+  /// getComments
+  Future<List<ShowCommentNameModel>> getComments({required String postId}) async {
+    try {
+      final postData = await fireStoreNewPostInstance.doc(postId).get();
+      final List<String> commentIds = List<String>.from(postData.get('comment') ?? <String>[]);
+
+      final List<DocumentSnapshot> commentSnapshots =
+      await Future.wait(commentIds.map((commentId) => fireStoreCommentInstance.doc(commentId).get()));
+
+      final List<ShowCommentNameModel> comments = [];
+
+      for (final commentSnapshot in commentSnapshots) {
+        final getUserId = commentSnapshot.get('userId');
+        final getUserName = await fireStoreRegisterUserInstance.doc(getUserId).get();
+
+        comments.add(ShowCommentNameModel(
+          comment: commentSnapshot.get('comment'),
+          userName: getUserName.get('userName'),
+        ));
+      }
+      return comments;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  ///--------------------------------------/////
   /// fetch all image
   Future<List<String>> fetchImage() async {
     final download = FirebaseStorage.instance.ref().child('Images');
@@ -90,7 +231,6 @@ class FirebaseServices {
     return imageList;
   }
 
-
   /// fetch userName by Id
   Future<String> fetchUserName({required String userId}) async {
     final userData = await fireStoreRegisterUserInstance.doc(userId).get();
@@ -101,17 +241,14 @@ class FirebaseServices {
   /// calculate total post
   Future<int> totalPost({required String userId}) async {
     final data = await fireStoreNewPostInstance.where(
-        'userId', isEqualTo: userId).get();
+        'userId', isEqualTo: userId,
+    ).get();
     return data.size;
   }
 
   /// check if conversation available
   void checkConversationAvailable({required ConversationModel conversationModel,}) async {
-    // final data = await fireStoreConversationInstance
-    //     .where('senderId', isEqualTo: conversationModel.senderId,)
-    //     .where('receiverId', isEqualTo: conversationModel.receiverId).get();
-
-    final data = await fireStoreConversationInstance.where(
+   final data = await fireStoreConversationInstance.where(
       Filter.or(
         Filter.and(
           Filter('senderId', isEqualTo: conversationModel.senderId),
@@ -140,7 +277,6 @@ class FirebaseServices {
     fireStoreConversationInstance.add(conversationModel.toJson()).then((value) {
       value.set({'conversationId': value.id}, SetOptions(merge: true));
       conversationId = value.id;
-      // conversationId = conversationId.substring(1, conversationId.length - 1);
       print("conversation Iddsss => $conversationId");
     });
   }
@@ -157,13 +293,6 @@ class FirebaseServices {
     });
   }
 
-  // Future<List<String>> readMessage({required String messageId}) async {
-  //   // List<String> messageList = [];
-  //   final messageDoc = await fireStoreMessageInstance.doc(messageId).get();
-  //   messageList.add(messageDoc.get('message'));
-  //   return messageList;
-  // }
-
   /// read conversation model
   Future<ConversationModel> read() async {
     final data = await fireStoreConversationInstance.orderBy(
@@ -171,11 +300,8 @@ class FirebaseServices {
     return ConversationModel.fromJson(data.docs[0].data());
   }
 
-
   /// read messages
-
   Stream<MessageConversationIdModel> readMessages() {
-    // String cid = conversationId;
     print("conversation Id =>>> $conversationId");
     return fireStoreConversationInstance.doc(conversationId).snapshots().asyncMap((event) async {
       List<String> messageList = [];

@@ -46,7 +46,7 @@ class _ProfileUiState extends State<ProfileUi> {
                   await SharedPreferences.getInstance();
               sharedPreferences.setString('userId', '');
               Navigator.pushNamedAndRemoveUntil(
-                  context, LoginView.routeName, (route) => false);
+                  context, LoginUi.routeName, (route) => false);
             },
             child: Padding(
               padding: const EdgeInsetsDirectional.only(end: Spacing.small),

@@ -1,0 +1,124 @@
+{
+  "project_info": {
+    "project_number": "972368189268",
+    "project_id": "sample-demo-94788",
+    "storage_bucket": "sample-demo-94788.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:972368189268:android:7104baeb819ff744609ac1",
+        "android_client_info": {
+          "package_name": "com.example.chat_app_firestore"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArLldGrKPQorViAAgYj_b2LL-qra3FSBc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:972368189268:android:eb119dcbba14fe23609ac1",
+        "android_client_info": {
+          "package_name": "com.example.commennt_like_post"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArLldGrKPQorViAAgYj_b2LL-qra3FSBc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:972368189268:android:d0c44502350871a3609ac1",
+        "android_client_info": {
+          "package_name": "com.example.firestore_demo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArLldGrKPQorViAAgYj_b2LL-qra3FSBc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:972368189268:android:77fa56f576d024d0609ac1",
+        "android_client_info": {
+          "package_name": "com.example.like_comment"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArLldGrKPQorViAAgYj_b2LL-qra3FSBc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:972368189268:android:736acf1de9242a04609ac1",
+        "android_client_info": {
+          "package_name": "com.example.like_comment_firestore"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArLldGrKPQorViAAgYj_b2LL-qra3FSBc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:972368189268:android:2814c46a1527b1f8609ac1",
+        "android_client_info": {
+          "package_name": "com.example.likes_comments"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArLldGrKPQorViAAgYj_b2LL-qra3FSBc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
